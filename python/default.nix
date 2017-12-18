@@ -1,11 +1,11 @@
 { stdenv,
   pkgs,
-  python ? pkgs.python3,
-  pythonPackages,
+  python,
   fetchgit
 }:
 
-with pythonPackages;
+with pkgs;
+with python.pkgs;
 
 let
   libmxnet = callPackage ../libmxnet {};
@@ -37,5 +37,12 @@ buildPythonPackage rec {
     mkdir ./lib
     cp -r ${libmxnet}/lib/* ./lib
     cd python
+  '';
+
+  # In python3, test was failed...
+  doCheck = isPy27;
+
+  postInstall = ''
+    cp -r ${libmxnet}/lib/* $out/lib/${python.libPrefix}/site-packages/mxnet/
   '';
 }
